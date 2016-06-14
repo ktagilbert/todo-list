@@ -1,28 +1,28 @@
 require 'spec_helper'
 
+
 describe "Creating todo lists" do
-  it "redirects to the todo list page on sucess" do
+  def create_todo_list(options={})
+    options[:title] ||= "My todo list"
+    options[:description] ||= "Today's tasks."
+
     visit "/todo_lists"
     click_link "New Todo list"
     expect(page). to have_content("New Todo List")
 
-    fill_in "Title", with: "My todo list"
-    fill_in "Description", with: "The thing that is saving me from my own anxiety."
+    fill_in "Title", with: options[:title]
+    fill_in "Description", with: options[:description]
     click_button "Create Todo list"
+  end
 
+  it "redirects to the todo list page on sucess" do
+    create_todo_list
     expect(page).to have_content("My todo list")
   end
 
   it "displays an error when the todo list has no title" do
     expect(TodoList.count).to eq(0)
-
-    visit "/todo_lists"
-    click_link "New Todo list"
-    expect(page). to have_content("New Todo List")
-
-    fill_in "Title", with: ""
-    fill_in "Description", with: "The thing that is saving me from my own anxiety."
-    click_button "Create Todo list"
+    create_todo_list title: ""
 
     expect(page).to have_content("error")
     expect(TodoList.count).to eq(0)
@@ -32,13 +32,7 @@ describe "Creating todo lists" do
   end
 
   it "displays an error when the todo list has no description" do
-    visit "/todo_lists"
-    click_link "New Todo list"
-    expect(page). to have_content("New Todo List")
-
-    fill_in "Title", with: "My todo list"
-    fill_in "Description", with: ""
-    click_button "Create Todo list"
+    create_todo_list description: ""
 
     expect(page).to have_content("error")
     expect(TodoList.count).to eq(0)
